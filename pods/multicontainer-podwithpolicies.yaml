@@ -1,0 +1,37 @@
+apiVersion: v1 
+kind: Pod #apiVersion + kind is ritual default, can't write other params without this.
+metadata: # Metadata of the pod: name + labels are labels/key-value pairs for IDs, can be used to identify the pod
+  name: multicontainer-podwithpolicies
+  labels: 
+    app: multicontainer-podwithpolicies
+    type: web
+    env: prod
+spec:
+  restartPolicy: Always #restart policy of the pod 
+  # securityContext: #security context of the pod
+  #   runAsUser: 1000 #user ID
+  #   runAsGroup: 1000 #group ID
+  containers:
+    - name: write-container #as per convenience, name can be anything
+      image: alpine:latest #image name
+      command: ["/bin/sh"] #assessing the shell of the container to run the following script in the given args section
+      args: ["-c", "while true; do date >> /var/tmp/index.html; sleep 10; #exit 1or 2; done"] #write command
+      volumeMounts: #mounting this Container volume to Pod
+        - name: multicontainer-podwithpolicies-vol #name of the Containervolume = name of the PodVolume's emptyDir{}
+          mountPath: /var/tmp
+
+    - name: serve-container #ALL AS SAME AS THE ABOVE! 
+      image: nginx:latest 
+      ports:
+        - containerPort: 80
+          name: http
+          protocol: TCP
+          hostPort: 8888
+          #hostIP: #host IP address gets opt in by default, no need to specify. 
+      volumeMounts: 
+        - name: multicontainer-podwithpolicies-vol
+          mountPath: /usr/share/nginx/html
+
+  volumes:
+    - name: multicontainer-podwithpolicies-vol
+      emptyDir: {}

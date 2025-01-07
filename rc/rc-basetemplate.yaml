@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: nginx-rc
+  labels:
+    app: nginx-rc
+    type: rc-prod
+
+spec:
+  replicas: 1
+  selector:
+    app: nginx-rc
+  template:
+    metadata:
+      labels:
+        app: nginx-rc

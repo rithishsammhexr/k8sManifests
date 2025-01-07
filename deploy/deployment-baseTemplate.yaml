@@ -1,0 +1,35 @@
+apiVersion: batch/v1
+kind: Deployment
+metadata:
+  name: hello
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: deployapp
+  template:
+    metadata:
+      labels:
+        app: deployapp
+    spec:
+      containers:
+      - name: deployapp
+        image: alpine
+        args:
+        - /bin/sh
+        - -c
+        - date >> /tmp/hello
+        volumeMounts:
+        - name: deploy-shared-volume
+          mountPath: /tmp
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+          requests:
+            memory: "64Mi"
+            cpu: "250m"
+            
+      volumes:
+      - name: deploy-shared-volume
+        emptyDir: {}
