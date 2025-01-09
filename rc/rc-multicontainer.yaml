@@ -7,6 +7,8 @@ spec:
   replicas: 3
   selector:
     app: nginx-multicontainer-rc
+    env: prod
+    release: v1.0
   template:
     metadata:
       labels:
