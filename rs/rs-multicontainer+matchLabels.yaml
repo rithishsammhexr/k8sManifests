@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: ReplicaSet
 metadata:
   name: nginx-rs
-  labe  ls:
+  labels:
     app: nginx-app
     env: prod
     release: v1.0
@@ -14,7 +14,7 @@ spec:
      app: nginx-app
      env: prod
      release: v1.0
-     
+
   template:
     metadata:
       name: nginx-rs
