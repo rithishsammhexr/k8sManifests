@@ -8,12 +8,11 @@ metadata:
 
 spec:
   replicas: 1
-  selector:
-    app: nginx-rc
   template:
     metadata:
       labels:
         app: nginx-rc
+        
     spec:
       containers:
       - name: nginx-app

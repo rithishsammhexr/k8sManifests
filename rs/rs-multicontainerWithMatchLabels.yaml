@@ -10,10 +10,10 @@ metadata:
 spec: 
   replicas: 3
   selector:
-    # matchLabels:
-    #  app: nginx-app
-    #  env: prod
-    #  release: v1.0
+    matchLabels:
+     app: nginx-app
+     env: prod
+     release: v1.0
 
   template:
     metadata:
@@ -22,7 +22,7 @@ spec:
         app: nginx-app
         env: prod
         release: v1.0
-        
+
     spec:
       containers:
       - name: write-app
