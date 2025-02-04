@@ -10,10 +10,16 @@ metadata:
 spec: 
   replicas: 3
   selector:
-    matchExpressions:
-    - {key: app, operator: Exists}
-    - {key: env, operator: Exists}
-    - {key: release, operator: Exists}
+    matchLabels:
+      app: nginx-app
+      env: prod
+      release: v1.0
+
+    matchExpressions: #same params + withTheMatchLabels
+    - {key: app, operator: In, values: [nginx-app]}
+    - {key: env, operator: NotIn, values: [dev]}
+    - {key: env, operator: In, values: [prod]}
+    - {key: release, operator: NotIn, values: [v1.1, v1.2]}
 
   template:
     metadata:
