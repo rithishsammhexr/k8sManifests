@@ -7,17 +7,22 @@ metadata:
     env: prod
     release: v1.0
 
-spec: 
+spec:
   replicas: 3
   selector:
+    matchLabels:
+      app: nginx-app
+      env: prod
+      release: v1.0
+
     matchExpressions:
-    - {key: app, operator: DoesNotExist}
-    - {key: env, operator: DoesNotExist}
-    - {key: release, operator: DoesNotExist}
+    - {key: app, operator: Exists}
+    - {key: env, operator: Exists}
+    - {key: release, operator: Exists}
+    - {key: type, operator: DoesNotExist}
 
   template:
     metadata:
-      name: nginx-rs
       labels:
         app: nginx-app
         env: prod

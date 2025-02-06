@@ -1,35 +1,45 @@
-apiVersion: batch/v1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: hello
+  name: nginx-deployment
+  labels:
+    app: nginx-app
+    env: prod
+    release: v1.0
 spec:
-  replicas: 1
+  replicas: 3
   selector:
     matchLabels:
-      app: deployapp
+      app: nginx-app
+      env: prod
+      release: v1.0
+    matchExpressions:
+      - {key: app, operator: In, values: [nginx-app]}
+      - {key: env, operator: NotIn, values: [dev]}
+      - {key: env, operator: In, values: [prod]}
+      - {key: release, operator: NotIn, values: [v1.1, v1.2]}
+  # RollingUpdate:
+  #   maxUnavailable: 1
+  #   maxSurge: 1
+  # minReadySeconds: 5
+  # paused: false
+
+  # strategy:
+  #   type: Recreate
+  #   rollingUpdate:
+  #     maxUnavailable: 1
+  #     maxSurge: 1
+
+  # progressDeadlineSeconds: 60
+  # CollisionPolicy: Replace
+  # revisionHistoryLimit: 2
+  # maxAvailable: 5
+  # maxReplicas: 5
+  # maxSurge: 1
+  # maxUnavailable: 1
+  
   template:
     metadata:
+      name: nginx-deployment
       labels:
-        app: deployapp
-    spec:
-      containers:
-      - name: deployapp
-        image: alpine
-        args:
-        - /bin/sh
-        - -c
-        - date >> /tmp/hello
-        volumeMounts:
-        - name: deploy-shared-volume
-          mountPath: /tmp
-        resources:
-          limits:
-            memory: "128Mi"
-            cpu: "500m"
-          requests:
-            memory: "64Mi"
-            cpu: "250m"
-            
-      volumes:
-      - name: deploy-shared-volume
-        emptyDir: {}
+        app: nginx-app

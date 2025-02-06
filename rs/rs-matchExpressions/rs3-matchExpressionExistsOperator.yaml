@@ -10,11 +10,11 @@ metadata:
 spec: 
   replicas: 3
   selector:
+    matchLabels:
+      env: prod
     matchExpressions:
     - {key: app, operator: Exists}
-    - {key: env, operator: NotIn, values: [dev]}
-    - {key: env, operator: In, values: [prod]}
-    - {key: release, operator: NotIn, values: [v1.1, v1.2]}
+    - {key: type, operator: DoesNotExist}
 
   template:
     metadata:
