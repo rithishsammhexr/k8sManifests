@@ -18,6 +18,8 @@ spec:
       - {key: env, operator: NotIn, values: [dev]}
       - {key: env, operator: In, values: [prod]}
       - {key: release, operator: NotIn, values: [v1.1, v1.2]}
+      - {key: release, operator: Exists}
+      - {key: type, operator: DoesNotExist}
   # RollingUpdate:
   #   maxUnavailable: 1
   #   maxSurge: 1
@@ -37,7 +39,7 @@ spec:
   # maxReplicas: 5
   # maxSurge: 1
   # maxUnavailable: 1
-  
+
   template:
     metadata:
       name: nginx-deployment
