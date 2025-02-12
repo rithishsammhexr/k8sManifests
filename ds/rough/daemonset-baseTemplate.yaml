@@ -2,17 +2,35 @@ apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: nginx-ds
+  labels:
+    app: nginx-ds
+    env: prod
+    release: v1.0
+    
 spec:
   selector:
     matchLabels:
       app: nginx-ds
+      env: prod
+      release: v1.0
+
   template:
     metadata:
       labels:
         app: nginx-ds
+        env: prod
+        release: v1.0
+
     spec:
       containers:
-      - name: nginx-ds
+      - name: write-app
+        image: alpine
+        command: ["/bin/sh", "-c", "echo Hello World > /usr/share/nginx/html/index.html"]
+        volumeMounts:
+        - name: ds-shared-volume
+          mountPath: /usr/share/nginx/html
+
+      - name: serve-app
         image: nginx:latest
         ports:
         - containerPort: 80
