@@ -2,7 +2,7 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: cj1
+  name: cj-always
 spec:
   schedule: "*/2 * * * *"
   # timezone: "Asia/Kolkata"
@@ -10,11 +10,11 @@ spec:
     spec:
       template:
         spec:
+          restartPolicy: OnFailure
           containers:
-            - name: cj1
+            - name: cj-always
               image: ubuntu:latest
               args:
                 - /bin/bash
                 - -c
                 - date; echo Welcome to cronJob
-          restartPolicy: OnFailure
