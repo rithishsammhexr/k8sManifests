@@ -1,0 +1,20 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: cj-replace
+spec:
+  concurrencyPolicy: Forbid
+  schedule: "*/2 * * * *"
+  # timezone: "Asia/Kolkata"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: cj-replace
+              image: ubuntu:latest
+              args:
+                - /bin/bash
+                - -c
+                - while true; do date; echo Welcome to cronJob ; sleep 10; done
+          restartPolicy: OnFailure

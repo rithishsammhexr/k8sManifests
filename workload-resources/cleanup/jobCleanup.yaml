@@ -1,0 +1,16 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: cleanupjob
+spec:
+  backoffLimit: 3
+  suspend: false
+  ttlSecondsAfterFinished: 30 #time to leave
+  template:
+    spec:
+      containers:
+      - name: cleanupjob
+        image: alpine:latest
+        command: ["/bin/sh"]
+        args: ["-c", "echo Hello from the job1"]
+      restartPolicy: Never

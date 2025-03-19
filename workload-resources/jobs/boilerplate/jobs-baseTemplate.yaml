@@ -1,0 +1,15 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: job1
+spec:
+  backoffLimit: 3
+  suspend: false
+  ttlSecondsAfterFinished: 10 #time to leave
+  template:
+    spec:
+      containers:
+      - name: job1-container
+        image: alpine:latest
+        command: ["/bin/sh"]
+        args: ["-c", "echo Hello from the job1"]

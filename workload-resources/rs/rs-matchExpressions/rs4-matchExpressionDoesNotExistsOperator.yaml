@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: nginx-rs
+  labels:
+    app: nginx-app
+    env: prod
+    release: v1.0
+
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx-app
+      env: prod
+      release: v1.0
+
+    matchExpressions:
+    - {key: app, operator: Exists}
+    - {key: env, operator: Exists}
+    - {key: release, operator: Exists}
+    - {key: type, operator: DoesNotExist}
+
+  template:
+    metadata:
+      labels:
+        app: nginx-app
+        env: prod
+        release: v1.0
+
+    spec:
+      containers:
+      - name: write-app
+        image: alpine
+        command: ["/bin/sh"]
+        args: ["-c", "while true; do date >> /var/log/index.html; sleep 10; done"]
+        volumeMounts:
+        - name: rc-shared-volume
+          mountPath: /var/log
+
+      - name: server-app
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: rc-shared-volume
+          mountPath: /usr/share/nginx/html
+
+      volumes:
+      - name: rc-shared-volume
+        emptyDir: {}

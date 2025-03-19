@@ -1,0 +1,20 @@
+#same base template manifest to verify the default concurrencyPolicy
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: cj-always
+spec:
+  schedule: "*/2 * * * *"
+  # timezone: "Asia/Kolkata"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: cj-always
+              image: ubuntu:latest
+              args:
+                - /bin/bash
+                - -c
+                - date; echo Welcome to cronJob
