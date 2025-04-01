@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: nodeportsvc
+  labels:
+    app:  nodeportsvc
+
+spec:
+  selector: 
+    app: nginx-app
+    env: prod
+    release: v1.0
+  ports:
+    - port: 80
+      targetPort: 80
+      nodePort: 27000 
+      protocol: TCP
+  # type: ClusterIP
+  type: NodePort
