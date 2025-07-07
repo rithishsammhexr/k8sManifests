@@ -1,0 +1,15 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: job1
+spec:
+  backoffLimit: 3
+  suspend: true
+  template:
+    spec:
+      containers:
+      - name: job1-container
+        image: alpine:latest
+        command: ["/bin/sh"]
+        args: ["-c", "ls -l samm"] #which doesn't exist and fails  
+      restartPolicy: Never

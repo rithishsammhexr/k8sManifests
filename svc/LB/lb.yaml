@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-lb
+  labels:
+    app: svc-lb
+
+spec:
+  selector: 
+    app: nginx-app
+    env: prod
+    release: v1.0
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+  type: LoadBalancer

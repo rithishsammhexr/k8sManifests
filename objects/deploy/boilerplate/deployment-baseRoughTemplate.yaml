@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  labels:
+    app: nginx-app
+    env: prod
+    release: v1.0
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx-app
+      env: prod
+      release: v1.0
+    matchExpressions:
+      - {key: app, operator: In, values: [nginx-app]}
+      - {key: env, operator: NotIn, values: [dev]}
+      - {key: env, operator: In, values: [prod]}
+      - {key: release, operator: NotIn, values: [v1.1, v1.2]}
+      - {key: release, operator: Exists}
+      - {key: type, operator: DoesNotExist}
+  # RollingUpdate:
+  #   maxUnavailable: 1
+  #   maxSurge: 1
+  # minReadySeconds: 5
+  # paused: false
+
+  # strategy:
+  #   type: Recreate
+  #   rollingUpdate:
+  #     maxUnavailable: 1
+  #     maxSurge: 1
+
+  # progressDeadlineSeconds: 60
+  # CollisionPolicy: Replace
+  # revisionHistoryLimit: 2
+  # maxAvailable: 5
+  # maxReplicas: 5
+  # maxSurge: 1
+  # maxUnavailable: 1
+
+  template:
+    metadata:
+      name: nginx-deployment
+      labels:
+        app: nginx-app

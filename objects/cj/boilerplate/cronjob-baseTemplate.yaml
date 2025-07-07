@@ -1,0 +1,28 @@
+apiVersion: batch/v1    #apiVersion for Jobs
+kind: CronJob           #kind of object
+metadata:               #all the boilerplate labels that to assign to the objects
+  name: cj1             #name of the object as label
+spec: 
+  schedule: "*/2 * * * *" #cron expression to schedule the job at a given time (every 2 minutes)
+  # timezone: "Asia/Kolkata" #timezone of the job
+  jobTemplate:            #jobTemplate for the job
+    spec:                 #spec of the job
+      template:           #template for the job where you write PodTemplate spec
+        spec:             #spec of the PodTemplate
+          restartPolicy: OnFailure #restartPolicy of the container (restart the container if it fails)
+          containers:     #containers of the PodTemplate
+            - name: cj1    #name of the container
+              image: ubuntu:latest #image of the container
+              args:     #command to run in the container
+                - /bin/bash
+                - -c
+                - date; echo Welcome to cronJob 
+
+#               volumeMounts: #volumeMounts of the container
+#                 - name: mypvc #name of the volumeMount
+#                   mountPath: /tmp
+
+#           volumes:        #volumes of the PodTemplate
+#             - name: mypvc #name of the volume
+#               persistentVolumeClaim:
+#                 claimName: myclaim

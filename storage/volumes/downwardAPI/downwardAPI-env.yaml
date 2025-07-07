@@ -1,0 +1,47 @@
+apiVersion: v1
+kind: Deployment
+metadata:
+  name: downwardapi-env-deploy
+  labels:
+    app: downwardapi-env
+    env: prod
+    release: v1.0
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: downwardapi-env
+      env: prod
+      release: v1.0
+  template:
+    metadata:
+      name: downwardapi-env-deploy
+      labels:
+        app: downwardapi-env
+        env: prod
+        release: v1.0
+    spec:
+      containers:
+      - name: downwardapi-env
+        image: alpine
+        command: ["/bin/sh"]
+        args: ["-c", "while true; do echo 'Hello from Downward API'; sleep 10; done"]
+        env: 
+        - name: POD-IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        volumeMounts:
+        - name: downwardapi-env-volume
+          mountPath: /mnt/data
+      volumes:
+      - name: downwardapi-env-volume
+      
+        # downwardAPI:
+        #   items:
+        #   - path: "release"
+        #     fieldRef:
+        #       fieldPath: metadata.labels['release']
+        #   - path: "env"
+        #     fieldRef:
+        #       fieldPath: metadata.labels['env']

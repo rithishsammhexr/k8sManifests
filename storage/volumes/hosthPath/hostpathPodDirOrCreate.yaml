@@ -1,0 +1,34 @@
+apiVersion: v1 #apiVersion of the Pod
+kind: Pod #Kind of the Object
+metadata: #Metadata of the Pod (name, labels as key-value pairs)
+  name: pod-hostpathdirorcreate
+  labels:
+    app: nginx
+    env: dev
+    release: v1.0
+
+spec: #Spec of the Pod
+  containers: #Containers under the Pod
+  - name: write-app
+    image: alpine:latest
+    command: ["/bin/sh"]
+    args: ["-c", "while true; do date >> /var/log/index.html; sleep 10; done"] #Command that writes the data to the emptyDir() PodVolume
+    volumeMounts: #VolumeMounts of the Container to    the emptyDir() PodVolume. 
+    - name: pod-hostpathdirorcreate
+      mountPath: /var/log #workDir of the Container mounted to the emptyDir() PodVolume
+
+  - name: serve-app
+    image: nginx:latest
+    ports:
+    - containerPort: 80 #Port of the Container
+    volumeMounts:
+      - name: pod-hostpathdirorcreate
+        mountPath: /usr/share/nginx/html 
+        #workDir of the Container mounted to the emptyDir() PodVolume, serving the data from the emptyDir() PodVolume
+
+  volumes:
+  - name: pod-hostpathdirorcreate #Name of the emptyDir() PodVolume
+    hostPath:
+      path: /var/tmp/nginx-data #hostpath -> PodVolumeType
+      type: DirectoryOrCreate #PodVolumeType 
+      #also can simply use `Directory` as value. if directory exists, will be used, if not, fails. 

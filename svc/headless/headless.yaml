@@ -1,0 +1,21 @@
+apiVersion: v1 #apiVersion of the resource
+kind: Service #kind of the resource
+metadata: #metadata of the svc
+  name: headless-svc #name of the svc
+  labels: #labels of the svc  (labels of the svc)
+    app: nginx-app
+    env: prod
+    release: v1.0
+
+spec: #spec of the svc  (matchLabels matching the labels of the pods)
+  selector: #selector of the svc (matchLabels matching the labels of the pods)
+    app: nginx-app
+    env: prod
+    release: v1.0
+  ports: #ports of the svc
+    - name: http
+      port: 80
+      targetPort: 80
+      protocol: TCP
+  type: ClusterIP #type of the svc (default is ClusterIP where we disable it to be headless)
+  clusterIP: None 

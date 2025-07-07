@@ -1,0 +1,140 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deploy
+  labels:
+    app: nginx-app
+    env: prod
+    release: v1.0
+
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nginx-app
+      env: prod 
+      release: v1.0
+
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+
+  template:
+    metadata:
+      name: nginx-deploy
+      labels:
+        app: nginx-app
+        env: prod
+        release: v1.0
+
+    spec:
+      containers:
+      - name: writer
+        image: alpine
+        command: ["/bin/sh"]
+        args: ["-c", "while true; do date >> /var/log/index.html; sleep 10; done"]
+        resources:
+          requests:
+            cpu: 50m
+            memory: 50Mi
+          limits:
+            cpu: 100m
+            memory: 100Mi
+        volumeMounts:
+        - name: deploy-shared-volume
+          mountPath: /var/log
+
+      - name: nginx-server
+        image: nginx:1.27.4
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            cpu: 50m
+            memory: 50Mi
+          limits:
+            cpu: 100m
+            memory: 100Mi
+        volumeMounts:
+        - name: deploy-shared-volume
+          mountPath: /usr/share/nginx/html
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 3
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 3
+          periodSeconds: 5
+
+      volumes:  
+      - name: deploy-shared-volume
+        emptyDir: {}
+
+
+# OLDER VERSION
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: nginx-deploy
+#   labels:
+#     app: nginx-app
+#     env: prod
+#     release: v1.0
+
+# spec:
+#   replicas: 2
+#   selector:
+#     matchLabels:
+#       app: nginx-app
+#       env: prod 
+#       release: v1.0
+
+#   strategy:
+#     type: RollingUpdate
+#     rollingUpdate:
+#       maxSurge: 1
+#       maxUnavailable: 1
+
+#   template:
+#     metadata:
+#       name: nginx-deploy
+#       labels:
+#         app: nginx-app
+#         env: prod
+#         release: v1.0
+
+#     spec:
+#       containers:
+#       - name: write-app
+#         image: alpine
+#         command: ["/bin/sh"]
+#         args: ["-c", "while true; do date >> /var/log/index.html; sleep 10; done"]
+#         resources:
+#           limits:
+#             cpu: 100m
+#             memory: 100Mi
+#         volumeMounts:
+#         - name: deploy-shared-volume
+#           mountPath: /var/log
+
+#       - name: serve-app
+#         image: nginx:1.27.4
+#         ports:
+#         - containerPort: 80
+#         resources:
+#           limits:
+#             cpu: 100m
+#             memory: 100Mi
+#         volumeMounts:
+#           - name: deploy-shared-volume
+#             mountPath: /usr/share/nginx/html
+#       volumes:  
+#       - name: deploy-shared-volume
+#         emptyDir: {}

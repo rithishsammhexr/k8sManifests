@@ -1,0 +1,266 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nfx-nginx-deploy
+  labels:
+    app: nginx-app
+    env: prod
+    release: v1.0
+
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nginx-app
+      env: prod 
+      release: v1.0
+
+  template:
+    metadata:
+      name: nfx-nginx-deploy
+      labels:
+        app: nginx-app
+        env: prod
+        release: v1.0
+
+    spec:
+      containers:
+      - name: write-app
+        image: alpine
+        command: ["/bin/sh"]
+        args: ["-c", "while true; do date >> /var/log/index.html; sleep 10; done"]
+        resources:
+          limits:
+            cpu: 100m
+            memory: 100Mi
+        volumeMounts:
+        - name: nfs-volume
+          mountPath: /var/log
+
+      - name: serve-app
+        image: nginx:1.27.4
+        ports:
+        - containerPort: 80
+        resources:
+          limits:
+            cpu: 100m
+            memory: 100Mi
+        volumeMounts:
+          - name: nfs-volume
+            mountPath: /usr/share/nginx/html
+      volumes:  
+      - name: nfs-volume
+        nfs:
+          # server: nfs-server.default.svc.cluster.local
+          server: 192.168.0.126
+          path: /var/nfs
+      imagePullSecrets:
+      - name: regcred
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      securityContext:
+        fsGroup: 2000
+        runAsUser: 1000
+        runAsGroup: 2000
+      nodeSelector:
+        kubernetes.io/os: linux
+      tolerations:
+      - key: "nfs"
+        operator: "Equal"
+        value: "true"
+        effect: "NoSchedule"
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - nginx-app
+            topologyKey: "kubernetes.io/hostname"
+            weight: 100
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/os
+                operator: In
+                values:
+                - linux
+            - matchExpressions:
+              - key: kubernetes.io/arch
+                operator: In
+                values:
+                - amd64
+                - arm64
+            - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                - nfs-node-1
+                - nfs-node-2
+            - matchExpressions:
+              - key: kubernetes.io/role
+                operator: In
+                values:
+                - storage
+            - matchExpressions:
+              - key: nfs
+                operator: In
+                values:
+                - true
+            - matchExpressions:
+              - key: nfs.storage.kubernetes.io/volume
+                operator: In
+                values:
+                - nfs-volume
+            - matchExpressions:
+              - key: nfs.storage.kubernetes.io/namespace
+                operator: In
+                values:
+                - storage
+            - matchExpressions:
+              - key: nfs.storage.kubernetes.io/path
+                operator: In
+                values:
+                - /var/nfs
+            - matchExpressions:
+              - key: nfs.storage.kubernetes.io/server
+                operator: In
+                values:
+                - /var/nfs
+            - matchExpressions:
+              - key: nfs.storage.kubernetes.io/protocol
+                operator: In
+                values:
+                - nfs
+            - matchExpressions:
+              - key: nfs.storage.kubernetes.io/version
+                operator: In
+                values:
+                - v4
+            - matchExpressions:
+              - key: nfs.storage.kubernetes.io/mountOptions
+                operator: In
+                values:
+                - rw
+                - hard
+                - nfsvers=4
+            - matchExpressions:
+              - key: nfs.storage.kubernetes.io/mountPropagation
+                operator: In
+                values:
+                - HostToContainer
+            - matchExpressions:
+              - key: nfs.storage.kubernetes.io/volumeMode
+                operator: In
+                values:
+                - Filesystem
+            - matchExpressions:
+              - key: nfs.storage.kubernetes.io/size
+                operator: In
+                values:
+                - 10Gi
+            - matchExpressions:
+              - key: nfs.storage.kubernetes.io/storageClassName
+                operator: In
+                values:
+                - nfs-storage-class
+            - matchExpressions:
+              - key: nfs.storage.kubernetes.io/claimName
+                operator: In
+                values:
+                - nfs-pvc 
+            - matchExpressions:
+              - key: nfs.storage.kubernetes.io/claimNamespace
+                operator: In
+                values:
+                - storage
+            - matchExpressions:
+              - key: nfs.storage.kubernetes.io/claimUID
+                operator: In
+                values:
+                - 12345678-1234-1234-1234-123456789012
+            - matchExpressions:
+              - key: nfs.storage.kubernetes.io/claimResourceVersion
+                operator: In
+                values:
+                - 1234567890
+            - matchExpressions:
+              - key: nfs.storage.kubernetes.io/claimGeneration
+                operator: In
+                values:
+                - 1
+            - matchExpressions:
+              - key: nfs.storage.kubernetes.io/claimAnnotations
+                operator: In
+                values:
+                - "nfs.storage.kubernetes.io/annotation-key=nfs-storage"
+            - matchExpressions:
+              - key: nfs.storage.kubernetes.io/claimLabels
+                operator: In
+                values:
+                - "nfs.storage.kubernetes.io/label-key=nfs-storage"
+            - matchExpressions:
+              - key: nfs.storage.kubernetes.io/claimFinalizers
+                operator: In
+                values:
+                - "nfs.storage.kubernetes.io/finalizer=nfs-storage"
+            - matchExpressions:
+              - key: nfs.storage.kubernetes.io/claimStatus
+                operator: In
+                values:
+                - "nfs.storage.kubernetes.io/status=Bound"  
+            - matchExpressions:
+              - key: nfs.storage.kubernetes.io/claimPhase
+                operator: In
+                values:
+                - "nfs.storage.kubernetes.io/phase=Bound"
+            - matchExpressions:
+              - key: nfs.storage.kubernetes.io/claimConditions
+                operator: In
+                values:
+                - "nfs.storage.kubernetes.io/condition=Ready"
+            - matchExpressions:
+              - key: nfs.storage.kubernetes.io/claimCapacity
+                operator: In
+                values:
+                - "nfs.storage.kubernetes.io/capacity=10Gi"
+            - matchExpressions:
+              - key: nfs.storage.kubernetes.io/claimAccessModes
+                operator: In
+                values:
+                - "nfs.storage.kubernetes.io/access-modes=ReadWriteMany"
+            - matchExpressions:
+              - key: nfs.storage.kubernetes.io/claimReclaimPolicy
+                operator: In
+                values:
+                - "nfs.storage.kubernetes.io/reclaim-policy=Retain"
+            - matchExpressions:
+              - key: nfs.storage.kubernetes.io/claimVolumeAttributes
+                operator: In
+                values:
+                - "nfs.storage.kubernetes.io/attributes=ReadWriteMany"
+            - matchExpressions:
+              - key: nfs.storage.kubernetes.io/claimVolumeMode
+                operator: In
+                values:
+                - "nfs.storage.kubernetes.io/mode=Filesystem"
+            - matchExpressions:
+              - key: nfs.storage.kubernetes.io/claimMountOptions
+                operator: In
+                values:
+                - "nfs.storage.kubernetes.io/options=rw,hard,nfsvers=4"
+            - matchExpressions:
+              - key: nfs.storage.kubernetes.io/claimMountPropagation
+                operator: In
+                values:
+                - "nfs.storage.kubernetes.io/propagation=HostToContainer"
+            - matchExpressions:
+              - key: nfs.storage.kubernetes.io/claimStorageClassName
+                operator: In
+                values:
+                - "nfs.storage.kubernetes.io/class=nfs-storage-class"
+            

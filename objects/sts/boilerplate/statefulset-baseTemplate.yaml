@@ -1,0 +1,33 @@
+apiVersion: batch/v1
+kind: StatefulSet
+metadata:
+  name: nginx-sts
+spec:
+  serviceName: "nginx-sts"
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx-sts
+  template:
+    metadata:
+      labels:
+        app: nginx-sts
+    spec:
+      containers:
+      - name: nginx-sts
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: sts-shared-volume
+          mountPath: /usr/share/nginx/html
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+          requests:
+            memory: "64Mi"
+            cpu: "250m"
+      volumes:
+      - name: sts-shared-volume
+        emptyDir: {}

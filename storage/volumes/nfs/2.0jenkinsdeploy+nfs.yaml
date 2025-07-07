@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jenkins-nfs-deploy
+  labels:
+    app: cicd-server
+    env: prod
+    release: v1.0
+spec:
+  selector:
+    matchLabels:
+      app: cicd-server
+      env: prod
+      release: v1.0
+  template:
+    metadata:
+      name: jenkins-nfs-deploy
+      labels:
+        app: cicd-server
+        env: prod
+        release: v1.0
+    spec:
+      containers:
+        - name: cicd-server
+          image: 'jenkins/jenkins:lts'
+          ports:
+            - name: cicd-port
+              containerPort: 8080
+              protocol: TCP
+          volumeMounts:
+            - name: jenkins-nfs
+              mountPath: /var/jenkins_home
+      volumes:
+        - name: jenkins-nfs
+          nfs:
+            server: 192.168.0.126
+            path: /var/nfs/jenkins-nfs

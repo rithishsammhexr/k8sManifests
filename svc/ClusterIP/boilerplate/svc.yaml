@@ -1,0 +1,17 @@
+apiVersion: v1 #apiVersion for svc
+kind: Service  #kind of the object
+metadata:      #metadata name and labels
+  name: nginx-clusterip-svc
+  labels:
+    app: nginx-clusterip-svc
+
+spec:                        #spec of the svc
+  selector:                  #selector of the svc
+    app: nginx-app           #selector labels of the svc (must be identical/match with pod labels)
+    env: prod
+    release: v1.0
+  ports:                     #need to pass tow ports (1.port any number of svc to send and receive the traffic and 2.target port which of the same port that send traffic to the destination pod/container)
+    - port: 80               #ports of the svc (port number that to assign to the svc to send and receive the traffic) (use any ports for the svc)
+      targetPort: 80         #target port of the svc has to be the same port number of the pod/container (backend port that we send that traffic to) (must use the same port number of the pod/container)
+      protocol: TCP          #protocol of the svc
+  type: ClusterIP            #svc type (even if we don't specify it, it will be ClusterIP by default) (optional to specify)

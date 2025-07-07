@@ -1,0 +1,40 @@
+apiVersion: v1 #apiVersion of the Pod
+kind: Pod #Kind of the Object
+metadata: #Metadata of the Pod (name, labels as key-value pairs)
+  name: pod-hostpathfileorcreate 
+  labels:
+    app: nginx
+    env: dev
+    release: v1.0
+
+spec: #Spec of the Pod
+  containers: #Containers under the Pod
+  - name: write-app
+    image: alpine:latest
+    command: ["/bin/sh"]
+    args: ["-c", "while true; do date >> /var/log/index.html; sleep 10; done"] #Command that writes the data to the hostpath PodVolume
+    volumeMounts: #VolumeMounts of the Container to the hostpath PodVolume. 
+    - name: shareddata-hostpathfileorcreate #Name of the hostpath PodVolume
+      mountPath: /var/log #hostpath -> PodVolumeType
+    - name: infodata-hostpathfileorcreate #Name of the hostpath PodVolume:
+      mountPath: /var/tmp/info.php #hostpath -> PodVolumeType
+
+  - name: serve-app
+    image: nginx:latest
+    ports:
+    - containerPort: 80 #Port of the Container
+    volumeMounts:
+      - name: shareddata-hostpathfileorcreate
+        mountPath: /usr/share/nginx/html 
+        #workDir of the Container mounted to the hostpath PodVolume, serving the data from the hostpath PodVolume
+
+  volumes:
+  - name: infodata-hostpathfileorcreate #Name of the hostpath PodVolume
+    hostPath:
+      path: /var/tmp/info.php #hostpath -> PodVolumeType
+      type: FileOrCreate #here for the FileOrCreate PodVolumeType, we are using it on only the write-app Container along with shared data volumetype
+
+  - name: shareddata-hostpathfileorcreate #Name of the emptyDir() PodVolume
+    hostPath:
+      path: /var/tmp/nginx-data #hostpath -> PodVolumeType
+      type: DirectoryOrCreate

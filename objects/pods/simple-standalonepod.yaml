@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: podapp-ngx
+  labels:
+    app: podapp-ngx
+    env: prod
+    image: nginx
+spec:
+  containers:
+    - name: podapp-ngx
+      image: nginx:latest
+      ports:
+        - containerPort: 80
+      volumeMounts:
+        - name: podapp-ngx-vol
+          mountPath: /var/www/html
+  volumes:
+    - name: podapp-ngx-vol
+      emptyDir: {}
