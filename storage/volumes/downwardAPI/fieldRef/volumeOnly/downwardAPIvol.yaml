@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deploy
+  labels:
+    app: nginx
+    environment: production
+    
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      environment: production
+      
+  template:
+    metadata:
+      name: nginx-demo
+      labels:
+        app: nginx
+        environment: production
+        
+    spec:
+      containers:
+      - name: write-container
+        image: alpine
+        command: ["/bin/sh"]
+        args: ["-c", "while true; do echo \"Time: $(date +%r) POD_NAME: $(cat /var/log/index.html)\" > /proc/1/fd/1; sleep 10; done"]
+        env:
+          - name: POD_IP
+            valueFrom:
+              fieldRef:
+                fieldPath: status.podIP
+
+          - name: POD_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          # and more environment variables can be added here...
+
+        volumeMounts:
+          - name: shared-data
+            mountPath: /var/log
+      volumes:
+        - name: shared-data
+          downwardAPI:
+            items:
+              - path: "index.html"
+                fieldRef:
+                  fieldPath: metadata.name
+              # - path: "status.podIP"
+              #   fieldRef:
+              #     fieldPath: status.podIP

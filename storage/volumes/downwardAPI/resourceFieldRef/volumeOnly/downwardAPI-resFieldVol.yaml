@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deploy
+  labels:
+    app: nginx
+    environment: production
+    
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      environment: production
+      
+  template:
+    metadata:
+      name: nginx-demo
+      labels:
+        app: nginx
+        environment: production
+        
+    spec:
+      containers:
+      - name: write-container
+        image: alpine
+        command: ["/bin/sh"]
+        args: ["-c", "while true; do echo \"Time: $(date +%r) CPU_LIMIT: $(cat /var/log/cpu_limit.txt) CPU_REQUEST: $(cat /var/log/cpu_request.txt) MEMORY_LIMIT: $(cat /var/log/memory_limit.txt) MEMORY_REQUEST: $(cat /var/log/memory_request.txt)\" > /proc/1/fd/1; sleep 10; done"]
+        resources: 
+          limits:
+            memory: "200Mi" #250MB
+            cpu: "200m" #20% of a single core
+          requests:
+            memory: "100Mi" #100MB
+            cpu: "100m" #10% of a single core
+        volumeMounts:
+          - name: shared-data
+            mountPath: /var/log
+      volumes:
+        - name: shared-data
+          downwardAPI:
+            items:
+              - path: cpu_limit.txt
+                resourceFieldRef:
+                  containerName: write-container
+                  resource: limits.cpu
+              - path: cpu_request.txt
+                resourceFieldRef:
+                  containerName: write-container
+                  resource: requests.cpu
+              - path: memory_limit.txt
+                resourceFieldRef:
+                  containerName: write-container
+                  resource: limits.memory
+              - path: memory_request.txt
+                resourceFieldRef:
+                  containerName: write-container
+                  resource: requests.memory
