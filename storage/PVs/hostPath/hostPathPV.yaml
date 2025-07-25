@@ -8,15 +8,15 @@ metadata:
     release: v1.0
 
 spec:
+  terminationGracePeriodSeconds: 60
   storageClassName: hostpath
   capacity:
     storage: 5Gi
   accessModes:
     - ReadWriteOnce
   hostPath:
-    path: "/var/tmp"
-
-  
+    path: "/var/tmp/nginx-data"
+    type: DirectoryOrCreate
 
 
 

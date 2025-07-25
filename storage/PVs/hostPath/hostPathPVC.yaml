@@ -3,6 +3,7 @@ kind: PersistentVolumeClaim
 metadata:
   name: static-pvc-hostpath
 spec:
+  terminationGracePeriodSeconds: 60
   storageClassName: hostpath
   accessModes:
     - ReadWriteOnce

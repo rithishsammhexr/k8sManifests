@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: static-nfs-pv
+  labels:
+    name: app
+    # type: nfs
+    env: prod
+    release: v1.0
+spec:
+  storageClassName: nfs
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 3Gi
+      # terminationGracePeriodSeconds: 60
