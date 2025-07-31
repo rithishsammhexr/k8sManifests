@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jenkins-deploy
+  env: prod
+  release: v1.0
+
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jenkins-deploy
+      env: prod
+      release: v1.0
+
+  template:
+    metadata:
+      labels:
+        app: jenkins-deploy
+        env: prod
+        release: v1.0
+
+    spec:
+      containers:
+      - name: jenkins-deploy
+        image: jenkins/jenkins:latest
+        ports:
+        - name: jenkins-port
+          containerPort: 8080
+          protocol: TCP
+        restartPolicy: Always
+        resources:
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+        volumeMounts:
+        - name: jenkins-data
+          mountPath: /var/jenkins_home
+
+      volumes:
+      - name: jenkins-data
+        nfs:
+          server: 192.168.0.126
+          path: /var/jenkins_home
