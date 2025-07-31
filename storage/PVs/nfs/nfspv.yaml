@@ -12,7 +12,7 @@ spec:
   capacity:
     storage: 3Gi #<Size> of availeble nfs server, check that using `df -h` 
   accessModes: #refer docs that which accessModes are allowed for nfs
-    - ReadWriteOnce #ReadWriteOnce if you want to use it for single pod, Many if multiple pods
+    - ReadWriteMany #ReadWriteOnce if you want to use it for single pod, Many if multiple pods
   nfs:
     server: 192.168.0.126
     path: /var/nfs/nfspv
