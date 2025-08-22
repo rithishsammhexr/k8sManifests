@@ -1,20 +1,20 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: static-nfs-pv
+  name: static-nfs-recyclepv
   labels:
     name: app
-    # type: nfs
     env: prod
     release: v1.0
-    
+
 spec:
+  persistentVolumeReclaimPolicy: Recycle
   storageClassName: nfs
   capacity:
     storage: 3Gi #<Size> of availeble nfs server, check that using `df -h` 
   accessModes: #refer docs that which accessModes are allowed for nfs
-    - ReadWriteMany #ReadWriteOnce if you want to use it for single pod, Many if multiple pods
+    - ReadWriteOnce #ReadWriteOnce if you want to use it for single pod, Many if multiple pods
   nfs:
-    server: 192.168.0.126
+    server: 192.168.0.0/24
     path: /var/nfs/nfspv
- 
+  
