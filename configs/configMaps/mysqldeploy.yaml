@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myapp
+spec:
+  selector:
+    matchLabels:
+      app: mysql-pilot
+      environment: production
+  template:
+    metadata:
+      labels:
+        app: mysql-pilot
+        environment: production
+
+    spec:
+      containers:
+      - name: mysql-pilot
+        image: mysql:8.4
+        ports:
+        - containerPort: 3306
+        volumeMounts:
+          - name: mysql-shared-volume
+            mountPath: /var/lib/mysql
+        environment:
+          - name: MYSQL_ROOT_PASSWORD
+            valueFrom:
+              configMapKeyRef:
+                name: db-data
+                key: mysql_root_password
+          - name: MYSQL_DATABASE
+            valueFrom:
+              configMapKeyRef:
+                name: db-data
+                key: mysql_db_name
+          - name: MYSQL_USER
+            valueFrom:
+              configMapKeyRef:
+                name: db-data
+                key: mysql_user
+          - name: MYSQL_PASSWORD
+            valueFrom:
+              configMapKeyRef:
+                name: db-data
+                key: mysql_user_passwd
+        # resources:
+        #   limits:
+        #     cpu: 100m
+        #     memory: 100Mimi
+        #   requests:
+        #     cpu: 200m
+        #     memory: 200Mi
+      volumes:
+      - name: mysql-shared-volume
+        emptyDir: {}
